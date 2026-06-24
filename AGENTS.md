@@ -58,12 +58,29 @@ implementation workers should stay in their assigned project.
 ## Crate Role
 
 `surgeist-test` owns shared test infrastructure, reusable fixture metadata,
-and integration verification support for Surgeist.
+test coverage and quality coordination, integration tests, end-to-end tests,
+system tests, and integration verification support for Surgeist.
 
 This crate is test-facing. Keep production crates from depending on it unless
 the top-level coordinator explicitly approves a boundary change. If a helper is
 needed at runtime, it likely belongs in the owning production crate instead of
 here.
+
+## Test Coordination
+
+The `surgeist-test` coordinator is responsible for watching the health of the
+whole Surgeist test strategy. That includes coverage gaps, weak assertions,
+flaky or over-broad tests, duplicated fixtures, slow checks, fixture ownership,
+and whether tests are exercising the right crate boundary.
+
+Use this repo for test assets and harnesses that reduce context pressure in
+implementation crates or need to compose multiple crates. Keep crate-local unit
+and focused behavior tests in the owning production crate when they can be
+tested there cleanly.
+
+Coordinate with the top-level repo before moving or centralizing tests that
+affect root workspace gates, submodule pointer policy, or cross-crate release
+readiness.
 
 ## Surgeist Crate Map
 
@@ -80,8 +97,9 @@ here.
 - `surgeist-window`: window, app host, event-loop, and platform host contracts.
 - `surgeist-dialog`: dialog contracts and dialog coordination primitives.
 - `surgeist-shape`: shape, geometry, and primitive path data.
-- `surgeist-test`: shared test harnesses, fixture metadata, and integration
-  verification support.
+- `surgeist-test`: shared test harnesses, fixture metadata, coverage and test
+  quality coordination, integration tests, e2e tests, system tests, and
+  integration verification support.
 
 Add crates only for real API boundaries, not architecture theater.
 
@@ -241,6 +259,15 @@ user chooses a separate folder. Do not put new plans under `docs/superpowers`.
 
 This crate owns its focused test commands. Tight iteration should happen in this
 crate project.
+
+This crate also owns shared integration, e2e, and system-test coordination.
+When designing those checks, document the owning scenario, participating crates,
+required fixture data, expected runtime cost, and whether the check is intended
+for tight local iteration, pre-pointer root validation, CI, or release gating.
+
+Coverage and quality work should produce actionable findings. Prefer reports
+that identify the owning crate, missing behavior, weak assertion, flaky test,
+or duplicated fixture, plus the command or fixture that demonstrates the gap.
 
 Expected command pattern:
 
