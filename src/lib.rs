@@ -8,3 +8,5 @@
 //! explicit boundary decision from the top-level coordinator.
 
 #![forbid(unsafe_code)]
+
+pub mod fixtures;
